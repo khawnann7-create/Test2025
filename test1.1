@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>🐱 100 เพลงตามอารมณ์</title>
+
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:linear-gradient(135deg,#ffe6f0,#e0f7fa);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.container{
+  width:95%;
+  max-width:650px;
+  background:#fff;
+  border-radius:25px;
+  padding:25px;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+}
+.cat{text-align:center;font-size:80px}
+h1{text-align:center;margin:5px 0}
+.login{text-align:center;margin-bottom:10px}
+.login button{
+  background:#1db954;color:#fff;border:none;
+  padding:8px 16px;border-radius:20px;cursor:pointer
+}
+.tabs{display:flex;justify-content:space-around;margin:15px 0}
+.tabs button{
+  border:none;border-radius:20px;padding:8px 14px;
+  cursor:pointer;background:#ffe4f1
+}
+.tabs button.active{background:#ff8fab;color:#fff}
+ul{list-style:none;padding:0;max-height:420px;overflow-y:auto}
+li{
+  display:flex;justify-content:space-between;
+  align-items:center;margin:6px 0;font-size:13px
+}
+a{
+  background:#1db954;color:#fff;text-decoration:none;
+  padding:4px 10px;border-radius:12px;font-size:12px
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="cat" id="cat">🐱</div>
+  <h1>แมวคัดเพลงให้คุณ</h1>
+
+  <div class="login">
+    <button onclick="loginSpotify()">🔐 Login Spotify</button>
+  </div>
+
+  <div class="tabs">
+    <button onclick="loadMood('happy',this)" class="active">😺 สุข</button>
+    <button onclick="loadMood('chill',this)">😌 ชิล</button>
+    <button onclick="loadMood('love',this)">😍 รัก</button>
+    <button onclick="loadMood('sad',this)">😿 เศร้า</button>
+  </div>
+
+  <ul id="songs"></ul>
+</div>
+
+<script>
+// ===== CONFIG =====
+const CLIENT_ID = "YOUR_CLIENT_ID_HERE";
+const REDIRECT_URI = "http://localhost:5500";
+const AUTH_URL = "https://accounts.spotify.com/authorize";
+
+// ===== TOKEN =====
+let token = location.hash
+  .substring(1)
+  .split("&")
+  .find(v=>v.startsWith("access_token"))
+  ?.split("=")[1];
+
+// ===== MOODS =====
+const moods = {
+  happy:{emoji:"😺",query:"เพลงไทย สนุก สดใส"},
+  chill:{emoji:"😌",query:"เพลงไทย ฟังสบาย"},
+  love:{emoji:"😍",query:"เพลงรักไทย"},
+  sad:{emoji:"😿",query:"เพลงเศร้าไทย"}
+};
+
+// ===== LOGIN =====
+function loginSpotify(){
+  location.href =
+    `${AUTH_URL}?client_id=${CLIENT_ID}`+
+    `&redirect_uri=${REDIRECT_URI}`+
+    `&response_type=token`;
+}
+
+// ===== LOAD 100 SONGS =====
+async function loadMood(mood,btn){
+  if(!token){ alert("กรุณา Login Spotify ก่อน 🐱"); return; }
+
+  document.getElementById("cat").textContent = moods[mood].emoji;
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+
+  const list = document.getElementById("songs");
+  list.innerHTML = "🐾 แมวกำลังค้นเพลง...";
+
+  let results=[], offset=0;
+  while(results.length<100){
+    const res = await fetch(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(moods[mood].query)}&type=track&limit=50&offset=${offset}`,
+      {headers:{Authorization:`Bearer ${token}`}}
+    );
+    const data = await res.json();
+    if(!data.tracks.items.length) break;
+    results.push(...data.tracks.items);
+    offset+=50;
+  }
+
+  list.innerHTML="";
+  results.slice(0,100).forEach((t,i)=>{
+    const artist = t.artists.map(a=>a.name).join(", ");
+    list.innerHTML += `
+      <li>
+        <span>${moods[mood].emoji} ${i+1}. ${t.name} – ${artist}</span>
+        <a href="${t.external_urls.spotify}" target="_blank">ฟัง</a>
+      </li>
+    `;
+  });
+}
+</script>
+</body>
+</html>
