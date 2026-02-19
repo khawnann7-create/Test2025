@@ -69,7 +69,7 @@ if st.sidebar.button("🗑 Clear Watchlist"):
 if st.sidebar.button("📊 Analytics"):
     st.session_state.page = "Analytics"
 
-uploaded_file = st.sidebar.file_uploader("Upload CSV", type=["csv"])
+uploaded_file = st.sidebar.file_uploader("rotten_tomatoes_movies.csv", type=["csv"])
 
 search = st.sidebar.text_input("🔎 Search")
 
