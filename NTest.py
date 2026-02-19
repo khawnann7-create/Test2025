@@ -1,101 +1,105 @@
 import streamlit as st
-import pandas as pd
+import requests
+import random
 
 # ----------------------------
-# ตั้งค่าหน้าเว็บ
+# ตั้งค่า
 # ----------------------------
-st.set_page_config(
-    page_title="Movies 2025 Recommender",
-    layout="wide"
-)
+st.set_page_config(page_title="Netflix 2025", layout="wide")
+
+API_KEY = "YOUR_API_KEY_HERE"
+BASE_URL = "https://api.themoviedb.org/3"
+IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
 
 # ----------------------------
-# ธีมสไตล์ Netflix
+# 🎨 Netflix Style
 # ----------------------------
 st.markdown("""
-    <style>
-    .stApp {
-        background-color: #141414;
-        color: white;
-    }
-
-    .main-title {
-        font-size: 45px;
-        font-weight: bold;
-        color: #E50914;
-    }
-
-    .movie-box {
-        background-color: #1f1f1f;
-        padding: 20px;
-        border-radius: 15px;
-        margin-top: 15px;
-    }
-
-    .rating {
-        color: #E50914;
-        font-weight: bold;
-        font-size: 18px;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# ----------------------------
-# หัวข้อ
-# ----------------------------
-st.markdown('<div class="main-title">🎬 MOVIES 2025</div>', unsafe_allow_html=True)
-st.write("ระบบแสดงหนังปี 2025 และสุ่มแนะนำอัตโนมัติ")
-
-# ----------------------------
-# ข้อมูลหนังปี 2025
-# ----------------------------
-data = {
-    "ชื่อหนัง": [
-        "Captain America: Brave New World",
-        "Deadpool 3",
-        "Mission: Impossible 8",
-        "Snow White (Live Action)",
-        "Avatar 3",
-        "The Batman Part II",
-        "Inside Out 2",
-        "Joker: Folie à Deux",
-        "Fast & Furious 11",
-        "Thunderbolts"
-    ],
-    "ประเภท": [
-        "Action", "Action", "Action", "Fantasy", "Sci-Fi",
-        "Action", "Animation", "Drama", "Action", "Action"
-    ],
-    "ปี": [2025]*10,
-    "คะแนนคาดการณ์": [8.5, 8.8, 8.2, 7.5, 9.0, 8.7, 8.0, 8.4, 7.9, 8.1]
+<style>
+.stApp {
+    background-color: #141414;
+    color: white;
 }
 
-df = pd.DataFrame(data)
+.title {
+    font-size: 45px;
+    font-weight: bold;
+    color: #E50914;
+}
+
+.scroll-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 10px;
+}
+
+.movie-card {
+    min-width: 200px;
+    transition: transform 0.3s;
+}
+
+.movie-card:hover {
+    transform: scale(1.1);
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown('<div class="title">NETFLIX 2025</div>', unsafe_allow_html=True)
+st.write("หนังปี 2025 ดึงข้อมูลจริงจาก TMDB")
 
 # ----------------------------
-# แสดงตารางหนังทั้งหมด
+# ดึงหนังปี 2025
 # ----------------------------
-st.subheader("📋 รายชื่อหนังทั้งหมดปี 2025")
-st.dataframe(df, use_container_width=True)
+def get_movies_2025():
+    url = f"{BASE_URL}/discover/movie"
+    params = {
+        "api_key": API_KEY,
+        "primary_release_year": 2025,
+        "sort_by": "popularity.desc"
+    }
+    response = requests.get(url, params=params)
+    data = response.json()
+    return data.get("results", [])
+
+movies = get_movies_2025()
 
 # ----------------------------
-# ปุ่มสุ่มแนะนำ
+# 🔥 แสดงแบบเลื่อนแนวนอน
+# ----------------------------
+st.subheader("🔥 หนังยอดนิยมปี 2025")
+
+if movies:
+    html = '<div class="scroll-container">'
+    for movie in movies[:15]:
+        poster = IMAGE_BASE + movie["poster_path"] if movie["poster_path"] else ""
+        html += f"""
+            <div class="movie-card">
+                <img src="{poster}" width="200">
+                <p>{movie['title']}</p>
+            </div>
+        """
+    html += "</div>"
+
+    st.markdown(html, unsafe_allow_html=True)
+else:
+    st.error("ไม่สามารถดึงข้อมูลหนังได้")
+
+# ----------------------------
+# 🎲 สุ่มแนะนำ
 # ----------------------------
 st.markdown("---")
-st.subheader("🎲 สุ่มแนะนำหนัง")
+st.subheader("🎲 สุ่มแนะนำหนังปี 2025")
 
-if st.button("สุ่มแนะนำหนังให้ฉัน 🎬"):
-    random_movie = df.sample(1).iloc[0]
+if st.button("สุ่มแนะนำให้ฉัน 🎬"):
+    if movies:
+        movie = random.choice(movies)
+        poster = IMAGE_BASE + movie["poster_path"]
 
-    st.markdown('<div class="movie-box">', unsafe_allow_html=True)
-    st.success("🔥 เราแนะนำเรื่องนี้ให้คุณ")
-
-    st.write("🎬 ชื่อเรื่อง:", random_movie["ชื่อหนัง"])
-    st.write("🎭 ประเภท:", random_movie["ประเภท"])
-    st.write("📅 ปี:", random_movie["ปี"])
-    st.markdown(
-        f'<div class="rating">⭐ คะแนนคาดการณ์: {random_movie["คะแนนคาดการณ์"]}</div>',
-        unsafe_allow_html=True
-    )
-
-    st.markdown('</div>', unsafe_allow_html=True)
+        st.image(poster, width=300)
+        st.success(f"🎬 {movie['title']}")
+        st.write("⭐ คะแนน:", movie["vote_average"])
+        st.write("📅 วันเข้าฉาย:", movie["release_date"])
+        st.write("📝 เรื่องย่อ:", movie["overview"])
+    else:
+        st.warning("ไม่มีข้อมูลหนัง")
