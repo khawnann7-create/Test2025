@@ -1,147 +1,111 @@
-import streamlit as st
-import requests
-import random
+[
+  {"id":1,"title":"The Shawshank Redemption","year":1994,"language":"English"},
+  {"id":2,"title":"The Godfather","year":1972,"language":"English"},
+  {"id":3,"title":"The Dark Knight","year":2008,"language":"English"},
+  {"id":4,"title":"Inception","year":2010,"language":"English"},
+  {"id":5,"title":"Interstellar","year":2014,"language":"English"},
+  {"id":6,"title":"Titanic","year":1997,"language":"English"},
+  {"id":7,"title":"Avengers: Endgame","year":2019,"language":"English"},
+  {"id":8,"title":"Gladiator","year":2000,"language":"English"},
+  {"id":9,"title":"Forrest Gump","year":1994,"language":"English"},
+  {"id":10,"title":"The Matrix","year":1999,"language":"English"},
 
-# -----------------------------
-# CONFIG
-# -----------------------------
-st.set_page_config(page_title="Netflix Pro 2025", layout="wide")
+  {"id":11,"title":"Joker","year":2019,"language":"English"},
+  {"id":12,"title":"Parasite","year":2019,"language":"Korean"},
+  {"id":13,"title":"The Conjuring","year":2013,"language":"English"},
+  {"id":14,"title":"Frozen","year":2013,"language":"English"},
+  {"id":15,"title":"Harry Potter and the Sorcerer's Stone","year":2001,"language":"English"},
+  {"id":16,"title":"The Lord of the Rings: The Fellowship of the Ring","year":2001,"language":"English"},
+  {"id":17,"title":"Spider-Man: No Way Home","year":2021,"language":"English"},
+  {"id":18,"title":"Black Panther","year":2018,"language":"English"},
+  {"id":19,"title":"Doctor Strange","year":2016,"language":"English"},
+  {"id":20,"title":"The Lion King","year":1994,"language":"English"},
 
-API_KEY = "YOUR_API_KEY_HERE"
-BASE_URL = "https://api.themoviedb.org/3"
-IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
+  {"id":21,"title":"Train to Busan","year":2016,"language":"Korean"},
+  {"id":22,"title":"La La Land","year":2016,"language":"English"},
+  {"id":23,"title":"The Social Network","year":2010,"language":"English"},
+  {"id":24,"title":"Mad Max: Fury Road","year":2015,"language":"English"},
+  {"id":25,"title":"John Wick","year":2014,"language":"English"},
+  {"id":26,"title":"Mission: Impossible – Fallout","year":2018,"language":"English"},
+  {"id":27,"title":"Top Gun: Maverick","year":2022,"language":"English"},
+  {"id":28,"title":"The Batman","year":2022,"language":"English"},
+  {"id":29,"title":"Avatar","year":2009,"language":"English"},
+  {"id":30,"title":"Deadpool","year":2016,"language":"English"},
 
-# -----------------------------
-# SESSION STATE
-# -----------------------------
-if "user" not in st.session_state:
-    st.session_state.user = None
+  {"id":31,"title":"ฉลาดเกมส์โกง","year":2017,"language":"Thai"},
+  {"id":32,"title":"พี่มาก..พระโขนง","year":2013,"language":"Thai"},
+  {"id":33,"title":"แฟนฉัน","year":2003,"language":"Thai"},
+  {"id":34,"title":"กวน มึน โฮ","year":2010,"language":"Thai"},
+  {"id":35,"title":"สิ่งเล็กๆ ที่เรียกว่ารัก","year":2010,"language":"Thai"},
+  {"id":36,"title":"ต้มยำกุ้ง","year":2005,"language":"Thai"},
+  {"id":37,"title":"ชัตเตอร์ กดติดวิญญาณ","year":2004,"language":"Thai"},
+  {"id":38,"title":"4 แพร่ง","year":2008,"language":"Thai"},
+  {"id":39,"title":"ไอฟาย..แต๊งกิ้ว..เลิฟยู้","year":2014,"language":"Thai"},
+  {"id":40,"title":"ร่างทรง","year":2021,"language":"Thai"},
 
-if "watchlist" not in st.session_state:
-    st.session_state.watchlist = {}
+  {"id":41,"title":"The Hangover","year":2009,"language":"English"},
+  {"id":42,"title":"A Quiet Place","year":2018,"language":"English"},
+  {"id":43,"title":"The Nun","year":2018,"language":"English"},
+  {"id":44,"title":"It","year":2017,"language":"English"},
+  {"id":45,"title":"Fast & Furious 7","year":2015,"language":"English"},
+  {"id":46,"title":"Transformers","year":2007,"language":"English"},
+  {"id":47,"title":"The Notebook","year":2004,"language":"English"},
+  {"id":48,"title":"The Fault in Our Stars","year":2014,"language":"English"},
+  {"id":49,"title":"The Hunger Games","year":2012,"language":"English"},
+  {"id":50,"title":"Dune","year":2021,"language":"English"},
 
-# -----------------------------
-# 🎨 STYLE
-# -----------------------------
-st.markdown("""
-<style>
-.stApp { background-color: #141414; color: white; }
-.title { font-size:40px; color:#E50914; font-weight:bold; }
-.card { background:#1f1f1f; padding:10px; border-radius:15px; }
-.watch-btn { background:#E50914; color:white; padding:5px 10px; border-radius:8px; }
-</style>
-""", unsafe_allow_html=True)
+  {"id":51,"title":"The Revenant","year":2015,"language":"English"},
+  {"id":52,"title":"The Wolf of Wall Street","year":2013,"language":"English"},
+  {"id":53,"title":"Fight Club","year":1999,"language":"English"},
+  {"id":54,"title":"The Prestige","year":2006,"language":"English"},
+  {"id":55,"title":"Shutter Island","year":2010,"language":"English"},
+  {"id":56,"title":"The Green Mile","year":1999,"language":"English"},
+  {"id":57,"title":"Whiplash","year":2014,"language":"English"},
+  {"id":58,"title":"The Pianist","year":2002,"language":"English"},
+  {"id":59,"title":"The Silence of the Lambs","year":1991,"language":"English"},
+  {"id":60,"title":"Se7en","year":1995,"language":"English"},
 
-# -----------------------------
-# 🔐 LOGIN SYSTEM
-# -----------------------------
-def login():
-    st.title("🔐 Login")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
+  {"id":61,"title":"About Time","year":2013,"language":"English"},
+  {"id":62,"title":"Edge of Tomorrow","year":2014,"language":"English"},
+  {"id":63,"title":"The Imitation Game","year":2014,"language":"English"},
+  {"id":64,"title":"Gravity","year":2013,"language":"English"},
+  {"id":65,"title":"The Martian","year":2015,"language":"English"},
+  {"id":66,"title":"Inside Out","year":2015,"language":"English"},
+  {"id":67,"title":"Coco","year":2017,"language":"English"},
+  {"id":68,"title":"Up","year":2009,"language":"English"},
+  {"id":69,"title":"Toy Story","year":1995,"language":"English"},
+  {"id":70,"title":"Zootopia","year":2016,"language":"English"},
 
-    if st.button("Login"):
-        if username and password:
-            st.session_state.user = username
-            if username not in st.session_state.watchlist:
-                st.session_state.watchlist[username] = []
-            st.success("Login สำเร็จ!")
-            st.rerun()
-        else:
-            st.error("กรอกข้อมูลให้ครบ")
+  {"id":71,"title":"The Grand Budapest Hotel","year":2014,"language":"English"},
+  {"id":72,"title":"Knives Out","year":2019,"language":"English"},
+  {"id":73,"title":"The Irishman","year":2019,"language":"English"},
+  {"id":74,"title":"Casino Royale","year":2006,"language":"English"},
+  {"id":75,"title":"Skyfall","year":2012,"language":"English"},
+  {"id":76,"title":"The Exorcist","year":1973,"language":"English"},
+  {"id":77,"title":"Get Out","year":2017,"language":"English"},
+  {"id":78,"title":"Us","year":2019,"language":"English"},
+  {"id":79,"title":"Her","year":2013,"language":"English"},
+  {"id":80,"title":"The Truman Show","year":1998,"language":"English"},
 
-if not st.session_state.user:
-    login()
-    st.stop()
+  {"id":81,"title":"The Maze Runner","year":2014,"language":"English"},
+  {"id":82,"title":"Ready Player One","year":2018,"language":"English"},
+  {"id":83,"title":"Pacific Rim","year":2013,"language":"English"},
+  {"id":84,"title":"Venom","year":2018,"language":"English"},
+  {"id":85,"title":"Logan","year":2017,"language":"English"},
+  {"id":86,"title":"The Flash","year":2023,"language":"English"},
+  {"id":87,"title":"Oppenheimer","year":2023,"language":"English"},
+  {"id":88,"title":"Barbie","year":2023,"language":"English"},
+  {"id":89,"title":"Everything Everywhere All at Once","year":2022,"language":"English"},
+  {"id":90,"title":"Nope","year":2022,"language":"English"},
 
-# -----------------------------
-# SIDEBAR
-# -----------------------------
-st.sidebar.title(f"👤 {st.session_state.user}")
-menu = st.sidebar.radio("Menu", ["🏠 Home", "🔥 Top 10", "❤️ My Watchlist", "🚪 Logout"])
-
-if menu == "🚪 Logout":
-    st.session_state.user = None
-    st.rerun()
-
-# -----------------------------
-# 📥 ดึงหนังปี 2025
-# -----------------------------
-@st.cache_data
-def get_movies():
-    url = f"{BASE_URL}/discover/movie"
-    params = {
-        "api_key": API_KEY,
-        "primary_release_year": 2025,
-        "sort_by": "popularity.desc"
-    }
-    res = requests.get(url, params=params)
-    return res.json().get("results", [])
-
-movies = get_movies()
-
-# -----------------------------
-# 🏠 HOME
-# -----------------------------
-if menu == "🏠 Home":
-    st.markdown('<div class="title">Movies 2025</div>', unsafe_allow_html=True)
-
-    cols = st.columns(4)
-
-    for col, movie in zip(cols, movies[:8]):
-        with col:
-            poster = IMAGE_BASE + movie["poster_path"] if movie["poster_path"] else ""
-            st.image(poster)
-
-            st.write("⭐", movie["vote_average"])
-            st.write(movie["title"])
-
-            if st.button(f"+ Watchlist {movie['id']}"):
-                if movie not in st.session_state.watchlist[st.session_state.user]:
-                    st.session_state.watchlist[st.session_state.user].append(movie)
-                    st.success("เพิ่มแล้ว!")
-
-# -----------------------------
-# 🔥 TOP 10
-# -----------------------------
-elif menu == "🔥 Top 10":
-    st.markdown('<div class="title">Top 10 Movies 2025</div>', unsafe_allow_html=True)
-
-    for i, movie in enumerate(movies[:10], start=1):
-        col1, col2 = st.columns([1,3])
-
-        with col1:
-            poster = IMAGE_BASE + movie["poster_path"]
-            st.image(poster)
-
-        with col2:
-            st.write(f"#{i} {movie['title']}")
-            st.write("⭐", movie["vote_average"])
-            st.write(movie["overview"])
-
-        st.markdown("---")
-
-# -----------------------------
-# ❤️ WATCHLIST
-# -----------------------------
-elif menu == "❤️ My Watchlist":
-    st.markdown('<div class="title">My Watchlist</div>', unsafe_allow_html=True)
-
-    user_list = st.session_state.watchlist.get(st.session_state.user, [])
-
-    if not user_list:
-        st.info("ยังไม่มีหนังใน Watchlist")
-    else:
-        for movie in user_list:
-            col1, col2 = st.columns([1,3])
-            with col1:
-                poster = IMAGE_BASE + movie["poster_path"]
-                st.image(poster)
-
-            with col2:
-                st.write(movie["title"])
-                st.write("⭐", movie["vote_average"])
-
-                if st.button(f"ลบ {movie['id']}"):
-                    st.session_state.watchlist[st.session_state.user].remove(movie)
-                    st.rerun()
+  {"id":91,"title":"One Day","year":2011,"language":"English"},
+  {"id":92,"title":"The Greatest Showman","year":2017,"language":"English"},
+  {"id":93,"title":"Mulan","year":1998,"language":"English"},
+  {"id":94,"title":"Aladdin","year":1992,"language":"English"},
+  {"id":95,"title":"The Incredibles","year":2004,"language":"English"},
+  {"id":96,"title":"Frozen II","year":2019,"language":"English"},
+  {"id":97,"title":"How to Train Your Dragon","year":2010,"language":"English"},
+  {"id":98,"title":"The Conjuring 2","year":2016,"language":"English"},
+  {"id":99,"title":"Annabelle","year":2014,"language":"English"},
+  {"id":100,"title":"Insidious","year":2010,"language":"English"}
+]
