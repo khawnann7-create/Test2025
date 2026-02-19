@@ -1,111 +1,213 @@
-[
-  {"id":1,"title":"The Shawshank Redemption","year":1994,"language":"English"},
-  {"id":2,"title":"The Godfather","year":1972,"language":"English"},
-  {"id":3,"title":"The Dark Knight","year":2008,"language":"English"},
-  {"id":4,"title":"Inception","year":2010,"language":"English"},
-  {"id":5,"title":"Interstellar","year":2014,"language":"English"},
-  {"id":6,"title":"Titanic","year":1997,"language":"English"},
-  {"id":7,"title":"Avengers: Endgame","year":2019,"language":"English"},
-  {"id":8,"title":"Gladiator","year":2000,"language":"English"},
-  {"id":9,"title":"Forrest Gump","year":1994,"language":"English"},
-  {"id":10,"title":"The Matrix","year":1999,"language":"English"},
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Netflix</title>
 
-  {"id":11,"title":"Joker","year":2019,"language":"English"},
-  {"id":12,"title":"Parasite","year":2019,"language":"Korean"},
-  {"id":13,"title":"The Conjuring","year":2013,"language":"English"},
-  {"id":14,"title":"Frozen","year":2013,"language":"English"},
-  {"id":15,"title":"Harry Potter and the Sorcerer's Stone","year":2001,"language":"English"},
-  {"id":16,"title":"The Lord of the Rings: The Fellowship of the Ring","year":2001,"language":"English"},
-  {"id":17,"title":"Spider-Man: No Way Home","year":2021,"language":"English"},
-  {"id":18,"title":"Black Panther","year":2018,"language":"English"},
-  {"id":19,"title":"Doctor Strange","year":2016,"language":"English"},
-  {"id":20,"title":"The Lion King","year":1994,"language":"English"},
+<style>
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#111;
+  color:white;
+}
 
-  {"id":21,"title":"Train to Busan","year":2016,"language":"Korean"},
-  {"id":22,"title":"La La Land","year":2016,"language":"English"},
-  {"id":23,"title":"The Social Network","year":2010,"language":"English"},
-  {"id":24,"title":"Mad Max: Fury Road","year":2015,"language":"English"},
-  {"id":25,"title":"John Wick","year":2014,"language":"English"},
-  {"id":26,"title":"Mission: Impossible – Fallout","year":2018,"language":"English"},
-  {"id":27,"title":"Top Gun: Maverick","year":2022,"language":"English"},
-  {"id":28,"title":"The Batman","year":2022,"language":"English"},
-  {"id":29,"title":"Avatar","year":2009,"language":"English"},
-  {"id":30,"title":"Deadpool","year":2016,"language":"English"},
+header{
+  background:black;
+  padding:15px 30px;
+  font-size:24px;
+  font-weight:bold;
+  color:red;
+}
 
-  {"id":31,"title":"ฉลาดเกมส์โกง","year":2017,"language":"Thai"},
-  {"id":32,"title":"พี่มาก..พระโขนง","year":2013,"language":"Thai"},
-  {"id":33,"title":"แฟนฉัน","year":2003,"language":"Thai"},
-  {"id":34,"title":"กวน มึน โฮ","year":2010,"language":"Thai"},
-  {"id":35,"title":"สิ่งเล็กๆ ที่เรียกว่ารัก","year":2010,"language":"Thai"},
-  {"id":36,"title":"ต้มยำกุ้ง","year":2005,"language":"Thai"},
-  {"id":37,"title":"ชัตเตอร์ กดติดวิญญาณ","year":2004,"language":"Thai"},
-  {"id":38,"title":"4 แพร่ง","year":2008,"language":"Thai"},
-  {"id":39,"title":"ไอฟาย..แต๊งกิ้ว..เลิฟยู้","year":2014,"language":"Thai"},
-  {"id":40,"title":"ร่างทรง","year":2021,"language":"Thai"},
+.section{
+  padding:20px;
+}
 
-  {"id":41,"title":"The Hangover","year":2009,"language":"English"},
-  {"id":42,"title":"A Quiet Place","year":2018,"language":"English"},
-  {"id":43,"title":"The Nun","year":2018,"language":"English"},
-  {"id":44,"title":"It","year":2017,"language":"English"},
-  {"id":45,"title":"Fast & Furious 7","year":2015,"language":"English"},
-  {"id":46,"title":"Transformers","year":2007,"language":"English"},
-  {"id":47,"title":"The Notebook","year":2004,"language":"English"},
-  {"id":48,"title":"The Fault in Our Stars","year":2014,"language":"English"},
-  {"id":49,"title":"The Hunger Games","year":2012,"language":"English"},
-  {"id":50,"title":"Dune","year":2021,"language":"English"},
+.movie-row{
+  display:flex;
+  overflow-x:auto;
+  gap:15px;
+  scroll-behavior:smooth;
+}
 
-  {"id":51,"title":"The Revenant","year":2015,"language":"English"},
-  {"id":52,"title":"The Wolf of Wall Street","year":2013,"language":"English"},
-  {"id":53,"title":"Fight Club","year":1999,"language":"English"},
-  {"id":54,"title":"The Prestige","year":2006,"language":"English"},
-  {"id":55,"title":"Shutter Island","year":2010,"language":"English"},
-  {"id":56,"title":"The Green Mile","year":1999,"language":"English"},
-  {"id":57,"title":"Whiplash","year":2014,"language":"English"},
-  {"id":58,"title":"The Pianist","year":2002,"language":"English"},
-  {"id":59,"title":"The Silence of the Lambs","year":1991,"language":"English"},
-  {"id":60,"title":"Se7en","year":1995,"language":"English"},
+.movie-card{
+  min-width:180px;
+  background:#222;
+  border-radius:10px;
+  padding:10px;
+  transition:0.3s;
+}
 
-  {"id":61,"title":"About Time","year":2013,"language":"English"},
-  {"id":62,"title":"Edge of Tomorrow","year":2014,"language":"English"},
-  {"id":63,"title":"The Imitation Game","year":2014,"language":"English"},
-  {"id":64,"title":"Gravity","year":2013,"language":"English"},
-  {"id":65,"title":"The Martian","year":2015,"language":"English"},
-  {"id":66,"title":"Inside Out","year":2015,"language":"English"},
-  {"id":67,"title":"Coco","year":2017,"language":"English"},
-  {"id":68,"title":"Up","year":2009,"language":"English"},
-  {"id":69,"title":"Toy Story","year":1995,"language":"English"},
-  {"id":70,"title":"Zootopia","year":2016,"language":"English"},
+.movie-card:hover{
+  transform:scale(1.05);
+}
 
-  {"id":71,"title":"The Grand Budapest Hotel","year":2014,"language":"English"},
-  {"id":72,"title":"Knives Out","year":2019,"language":"English"},
-  {"id":73,"title":"The Irishman","year":2019,"language":"English"},
-  {"id":74,"title":"Casino Royale","year":2006,"language":"English"},
-  {"id":75,"title":"Skyfall","year":2012,"language":"English"},
-  {"id":76,"title":"The Exorcist","year":1973,"language":"English"},
-  {"id":77,"title":"Get Out","year":2017,"language":"English"},
-  {"id":78,"title":"Us","year":2019,"language":"English"},
-  {"id":79,"title":"Her","year":2013,"language":"English"},
-  {"id":80,"title":"The Truman Show","year":1998,"language":"English"},
+.poster{
+  width:100%;
+  height:250px;
+  background:#333;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  text-align:center;
+  padding:10px;
+}
 
-  {"id":81,"title":"The Maze Runner","year":2014,"language":"English"},
-  {"id":82,"title":"Ready Player One","year":2018,"language":"English"},
-  {"id":83,"title":"Pacific Rim","year":2013,"language":"English"},
-  {"id":84,"title":"Venom","year":2018,"language":"English"},
-  {"id":85,"title":"Logan","year":2017,"language":"English"},
-  {"id":86,"title":"The Flash","year":2023,"language":"English"},
-  {"id":87,"title":"Oppenheimer","year":2023,"language":"English"},
-  {"id":88,"title":"Barbie","year":2023,"language":"English"},
-  {"id":89,"title":"Everything Everywhere All at Once","year":2022,"language":"English"},
-  {"id":90,"title":"Nope","year":2022,"language":"English"},
+button{
+  margin-top:8px;
+  width:100%;
+  padding:6px;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+  font-weight:bold;
+}
 
-  {"id":91,"title":"One Day","year":2011,"language":"English"},
-  {"id":92,"title":"The Greatest Showman","year":2017,"language":"English"},
-  {"id":93,"title":"Mulan","year":1998,"language":"English"},
-  {"id":94,"title":"Aladdin","year":1992,"language":"English"},
-  {"id":95,"title":"The Incredibles","year":2004,"language":"English"},
-  {"id":96,"title":"Frozen II","year":2019,"language":"English"},
-  {"id":97,"title":"How to Train Your Dragon","year":2010,"language":"English"},
-  {"id":98,"title":"The Conjuring 2","year":2016,"language":"English"},
-  {"id":99,"title":"Annabelle","year":2014,"language":"English"},
-  {"id":100,"title":"Insidious","year":2010,"language":"English"}
-]
+.add{
+  background:red;
+  color:white;
+}
+
+.remove{
+  background:#555;
+  color:white;
+}
+
+.nav{
+  display:flex;
+  gap:20px;
+  padding:10px 30px;
+  background:#1a1a1a;
+}
+
+.nav span{
+  cursor:pointer;
+}
+
+.active{
+  color:red;
+}
+
+.hidden{
+  display:none;
+}
+</style>
+</head>
+
+<body>
+
+<header>Mini Netflix</header>
+
+<div class="nav">
+  <span id="homeBtn" class="active">Home</span>
+  <span id="watchlistBtn">❤️ My Watchlist</span>
+</div>
+
+<div id="homeSection" class="section">
+  <h2>🔥 Popular Movies</h2>
+  <div class="movie-row" id="movieRow"></div>
+</div>
+
+<div id="watchlistSection" class="section hidden">
+  <h2>❤️ My Watchlist</h2>
+  <div class="movie-row" id="watchlistRow"></div>
+</div>
+
+<script>
+
+const movies = [
+"Interstellar","Inception","The Dark Knight","Titanic",
+"Avengers: Endgame","The Matrix","Joker","Parasite",
+"Top Gun: Maverick","Oppenheimer",
+"ฉลาดเกมส์โกง","พี่มาก..พระโขนง","แฟนฉัน",
+"ร่างทรง","ชัตเตอร์ กดติดวิญญาณ",
+"John Wick","The Conjuring","Dune","Barbie","Frozen"
+];
+
+let watchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
+
+function saveWatchlist(){
+  localStorage.setItem("watchlist", JSON.stringify(watchlist));
+}
+
+function renderMovies(){
+  const row = document.getElementById("movieRow");
+  row.innerHTML="";
+  movies.forEach(movie=>{
+    const card = document.createElement("div");
+    card.className="movie-card";
+
+    const isAdded = watchlist.includes(movie);
+
+    card.innerHTML=`
+      <div class="poster">${movie}</div>
+      <button class="${isAdded?'remove':'add'}"
+        onclick="toggleWatchlist('${movie}')">
+        ${isAdded?'Remove':'Add to Watchlist'}
+      </button>
+    `;
+
+    row.appendChild(card);
+  });
+}
+
+function renderWatchlist(){
+  const row = document.getElementById("watchlistRow");
+  row.innerHTML="";
+  if(watchlist.length===0){
+    row.innerHTML="<p>ยังไม่มีหนังใน Watchlist</p>";
+    return;
+  }
+
+  watchlist.forEach(movie=>{
+    const card = document.createElement("div");
+    card.className="movie-card";
+
+    card.innerHTML=`
+      <div class="poster">${movie}</div>
+      <button class="remove"
+        onclick="toggleWatchlist('${movie}')">
+        Remove
+      </button>
+    `;
+
+    row.appendChild(card);
+  });
+}
+
+function toggleWatchlist(movie){
+  if(watchlist.includes(movie)){
+    watchlist = watchlist.filter(m=>m!==movie);
+  }else{
+    watchlist.push(movie);
+  }
+  saveWatchlist();
+  renderMovies();
+  renderWatchlist();
+}
+
+document.getElementById("homeBtn").onclick=()=>{
+  document.getElementById("homeSection").classList.remove("hidden");
+  document.getElementById("watchlistSection").classList.add("hidden");
+  homeBtn.classList.add("active");
+  watchlistBtn.classList.remove("active");
+};
+
+document.getElementById("watchlistBtn").onclick=()=>{
+  document.getElementById("homeSection").classList.add("hidden");
+  document.getElementById("watchlistSection").classList.remove("hidden");
+  watchlistBtn.classList.add("active");
+  homeBtn.classList.remove("active");
+};
+
+renderMovies();
+renderWatchlist();
+
+</script>
+
+</body>
+</html>
