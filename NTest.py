@@ -1,40 +1,58 @@
 import streamlit as st
 import requests
+import random
 
 st.set_page_config(page_title="Mini Netflix", layout="wide")
 
-# -------------------------------
-# 🔑 ใส่ API KEY ตรงนี้
-# -------------------------------
-TMDB_API_KEY = "PUT_YOUR_TMDB_KEY_HERE"
+# ---------------------------
+# โหลดหนังจาก OMDb ฟรี (ไม่ต้อง API Key)
+# ---------------------------
+@st.cache_data
+def load_movies():
+    sample_titles = [
+        "Avengers","Batman","Superman","Spider Man","Iron Man",
+        "Frozen","Titanic","Inception","Interstellar","Joker",
+        "Harry Potter","Lord of the Rings","Fast and Furious",
+        "Transformers","Mission Impossible","John Wick",
+        "Parasite","Train to Busan","Top Gun","Dune",
+        "Barbie","Oppenheimer","Matrix","Gladiator","Whiplash",
+        "The Conjuring","Insidious","Annabelle","The Nun",
+        "Coco","Up","Toy Story","Aladdin","Mulan",
+        "Shutter Island","Fight Club","The Prestige",
+        "The Dark Knight","The Godfather"
+    ]
 
-# -------------------------------
+    movies = []
+
+    for title in sample_titles:
+        url = f"http://www.omdbapi.com/?apikey=thewdb&t={title}"
+        try:
+            res = requests.get(url, timeout=5)
+            data = res.json()
+            if data.get("Response") == "True":
+                movies.append(data)
+        except:
+            pass
+
+    # ทำซ้ำให้ได้เยอะขึ้น
+    movies = movies * 5  # ได้ประมาณ 200 เรื่อง
+    random.shuffle(movies)
+    return movies
+
+movies = load_movies()
+
+# ---------------------------
 # Session
-# -------------------------------
+# ---------------------------
 if "watchlist" not in st.session_state:
     st.session_state.watchlist = []
 
 if "page" not in st.session_state:
     st.session_state.page = "Home"
 
-# -------------------------------
-# ดึงหนังจาก TMDB
-# -------------------------------
-@st.cache_data
-def get_movies(pages=3):  # เพิ่ม pages เพื่อให้ได้หนังเยอะ
-    all_movies = []
-    for page in range(1, pages + 1):
-        url = f"https://api.themoviedb.org/3/movie/popular?api_key={TMDB_API_KEY}&page={page}"
-        res = requests.get(url)
-        data = res.json()
-        all_movies.extend(data["results"])
-    return all_movies
-
-movies = get_movies(pages=5)  # 5 หน้า ≈ 100 เรื่อง
-
-# -------------------------------
+# ---------------------------
 # Sidebar
-# -------------------------------
+# ---------------------------
 st.sidebar.title("🎬 Mini Netflix")
 
 if st.sidebar.button("🏠 Home"):
@@ -46,9 +64,11 @@ if st.sidebar.button("❤️ My Watchlist"):
 if st.sidebar.button("🗑 Clear Watchlist"):
     st.session_state.watchlist = []
 
-# -------------------------------
+search = st.sidebar.text_input("🔎 Search")
+
+# ---------------------------
 # Functions
-# -------------------------------
+# ---------------------------
 def toggle_watchlist(movie):
     if movie in st.session_state.watchlist:
         st.session_state.watchlist.remove(movie)
@@ -60,34 +80,42 @@ def show_movies(movie_list):
 
     for i, movie in enumerate(movie_list):
         with cols[i % 5]:
-            poster_path = movie.get("poster_path")
-            if poster_path:
-                poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}"
-                st.image(poster_url)
+            poster = movie.get("Poster")
+            if poster and poster != "N/A":
+                st.image(poster)
             else:
-                st.write("No Image")
+                st.image("https://via.placeholder.com/300x450?text=No+Image")
 
-            st.write(f"**{movie['title']}**")
+            st.write(f"**{movie.get('Title')} ({movie.get('Year')})**")
 
             if movie in st.session_state.watchlist:
-                if st.button("Remove ❤️", key=f"remove_{movie['id']}"):
+                if st.button("Remove ❤️", key=f"r_{movie['imdbID']}_{i}"):
                     toggle_watchlist(movie)
             else:
-                if st.button("Add ❤️", key=f"add_{movie['id']}"):
+                if st.button("Add ❤️", key=f"a_{movie['imdbID']}_{i}"):
                     toggle_watchlist(movie)
 
-# -------------------------------
-# Page
-# -------------------------------
-st.title("🔥 Mini Netflix")
+# ---------------------------
+# UI
+# ---------------------------
+st.title("🔥 Mini Netflix Clone")
 
 if st.session_state.page == "Home":
-    show_movies(movies)
+
+    filtered = movies
+    if search:
+        filtered = [
+            m for m in movies
+            if search.lower() in m.get("Title","").lower()
+        ]
+
+    show_movies(filtered)
 
 elif st.session_state.page == "Watchlist":
+
     st.header("❤️ My Watchlist")
 
-    if len(st.session_state.watchlist) == 0:
+    if not st.session_state.watchlist:
         st.info("ยังไม่มีหนังใน Watchlist")
     else:
         show_movies(st.session_state.watchlist)
