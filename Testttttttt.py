@@ -1,94 +1,114 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
 
-# -----------------------
-# Page Config
-# -----------------------
-st.set_page_config(page_title="Movie Popularity Analysis", layout="wide")
+# -----------------------------
+# PAGE CONFIG
+# -----------------------------
+st.set_page_config(page_title="Netflix Movie Dashboard", layout="wide")
 
-# -----------------------
-# Netflix Theme
-# -----------------------
+# -----------------------------
+# NETFLIX STYLE CSS
+# -----------------------------
 st.markdown("""
-    <style>
-    body {
-        background-color: #141414;
-        color: white;
-    }
-    .metric-box {
-        background-color: #1f1f1f;
-        padding: 15px;
-        border-radius: 10px;
-        text-align: center;
-    }
-    </style>
+<style>
+body {
+    background-color: #141414;
+    color: white;
+}
+.block-container {
+    padding-top: 2rem;
+}
+.metric-box {
+    background-color: #1f1f1f;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+}
+</style>
 """, unsafe_allow_html=True)
 
-st.title("🎬 Movie Popularity Analysis Dashboard")
+st.title("🎬 Netflix Movie Popularity Dashboard")
+st.markdown("### 🔥 วิเคราะห์ภาพยนตร์ยอดนิยม")
 
-# -----------------------
-# Load Data
-# -----------------------
+# -----------------------------
+# LOAD DATA
+# -----------------------------
 @st.cache_data
 def load_data():
     return pd.read_csv("rotten_tomatoes_movies (1).csv")
 
 df = load_data()
 
-# -----------------------
-# ตรวจหาคอลัมน์สำคัญ
-# -----------------------
+# -----------------------------
+# AUTO DETECT COLUMNS
+# -----------------------------
 numeric_cols = df.select_dtypes(include="number").columns.tolist()
+
 rating_cols = [c for c in df.columns if "score" in c.lower() or "rating" in c.lower()]
 title_col = next((c for c in df.columns if "title" in c.lower()), df.columns[0])
 genre_col = next((c for c in df.columns if "genre" in c.lower()), None)
+year_col = next((c for c in df.columns if "year" in c.lower()), None)
 
 rating_col = rating_cols[0] if rating_cols else numeric_cols[0]
 
-# -----------------------
-# KPI Section
-# -----------------------
+# -----------------------------
+# KPI SECTION
+# -----------------------------
 col1, col2, col3 = st.columns(3)
 
-with col1:
-    st.metric("🎬 Total Movies", len(df))
-
-with col2:
-    st.metric("⭐ Average Rating", round(df[rating_col].mean(), 2))
-
-with col3:
-    st.metric("🏆 Highest Rating", df[rating_col].max())
+col1.metric("🎬 Total Movies", len(df))
+col2.metric("⭐ Average Rating", round(df[rating_col].mean(), 2))
+col3.metric("🏆 Highest Rating", df[rating_col].max())
 
 st.divider()
 
-# -----------------------
-# Top 10 Popular Movies
-# -----------------------
+# -----------------------------
+# TOP 10 MOVIES
+# -----------------------------
 st.subheader("🔥 Top 10 Highest Rated Movies")
 
 top10 = df.sort_values(by=rating_col, ascending=False).head(10)
 
-st.dataframe(top10[[title_col, rating_col]])
+fig_top10 = px.bar(
+    top10,
+    x=rating_col,
+    y=title_col,
+    orientation='h',
+    color=rating_col,
+    color_continuous_scale="Reds"
+)
 
-# -----------------------
-# Histogram Rating Distribution
-# -----------------------
+fig_top10.update_layout(
+    template="plotly_dark",
+    yaxis=dict(autorange="reversed"),
+    height=500
+)
+
+st.plotly_chart(fig_top10, use_container_width=True)
+
+# -----------------------------
+# RATING DISTRIBUTION
+# -----------------------------
 st.subheader("📊 Rating Distribution")
 
-fig, ax = plt.subplots()
-ax.hist(df[rating_col].dropna(), bins=20)
-ax.set_xlabel("Rating")
-ax.set_ylabel("Frequency")
-st.pyplot(fig)
+fig_hist = px.histogram(
+    df,
+    x=rating_col,
+    nbins=20,
+    color_discrete_sequence=["#E50914"]
+)
 
-# -----------------------
-# Genre Analysis
-# -----------------------
+fig_hist.update_layout(template="plotly_dark")
+st.plotly_chart(fig_hist, use_container_width=True)
+
+# -----------------------------
+# GENRE ANALYSIS
+# -----------------------------
 if genre_col:
-    st.subheader("🎭 Genre Analysis")
+    st.subheader("🎭 Top Genres")
 
-    genre_count = (
+    genre_data = (
         df[genre_col]
         .dropna()
         .str.split(",")
@@ -96,9 +116,37 @@ if genre_col:
         .str.strip()
         .value_counts()
         .head(10)
+        .reset_index()
     )
 
-    fig2, ax2 = plt.subplots()
-    genre_count.plot(kind="bar", ax=ax2)
-    ax2.set_ylabel("Number of Movies")
-    st.pyplot(fig2)
+    genre_data.columns = ["Genre", "Count"]
+
+    fig_genre = px.bar(
+        genre_data,
+        x="Genre",
+        y="Count",
+        color="Count",
+        color_continuous_scale="Reds"
+    )
+
+    fig_genre.update_layout(template="plotly_dark")
+    st.plotly_chart(fig_genre, use_container_width=True)
+
+# -----------------------------
+# YEAR TREND
+# -----------------------------
+if year_col:
+    st.subheader("📅 Movies Released Per Year")
+
+    year_data = df[year_col].value_counts().sort_index().reset_index()
+    year_data.columns = ["Year", "Count"]
+
+    fig_year = px.line(
+        year_data,
+        x="Year",
+        y="Count",
+        markers=True
+    )
+
+    fig_year.update_layout(template="plotly_dark")
+    st.plotly_chart(fig_year, use_container_width=True)
