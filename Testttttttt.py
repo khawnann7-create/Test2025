@@ -1,152 +1,167 @@
-import streamlit as st
 import pandas as pd
-import plotly.express as px
+import matplotlib.pyplot as plt
+import streamlit as st
 
-# -----------------------------
-# PAGE CONFIG
-# -----------------------------
-st.set_page_config(page_title="Netflix Movie Dashboard", layout="wide")
+st.set_page_config(page_title="Mini Netflix - Rotten", layout="wide")
 
-# -----------------------------
-# NETFLIX STYLE CSS
-# -----------------------------
+# ---------------------------
+# 🎨 Netflix Theme CSS
+# ---------------------------
 st.markdown("""
 <style>
 body {
     background-color: #141414;
+}
+.stApp {
+    background-color: #141414;
     color: white;
 }
-.block-container {
-    padding-top: 2rem;
+h1, h2, h3 {
+    color: #E50914;
 }
-.metric-box {
-    background-color: #1f1f1f;
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
+.stButton>button {
+    background-color: #E50914;
+    color: white;
+    border-radius: 8px;
 }
+.stButton>button:hover {
+    background-color: #b20710;
+}
+.css-1d391kg {background-color:#000000;}
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🎬 Netflix Movie Popularity Dashboard")
-st.markdown("### 🔥 วิเคราะห์ภาพยนตร์ยอดนิยม")
-
-# -----------------------------
-# LOAD DATA
-# -----------------------------
+# ---------------------------
+# โหลดข้อมูล
+# ---------------------------
 @st.cache_data
-def load_data():
-    return pd.read_csv("rotten_tomatoes_movies (1).csv")
+def load_data(uploaded_file):
+    df = pd.read_csv(uploaded_file)
+    df = df.dropna(subset=["title"])
+    return df
 
-df = load_data()
+# ---------------------------
+# Session
+# ---------------------------
+if "watchlist" not in st.session_state:
+    st.session_state.watchlist = []
 
-# -----------------------------
-# AUTO DETECT COLUMNS
-# -----------------------------
-numeric_cols = df.select_dtypes(include="number").columns.tolist()
+if "page" not in st.session_state:
+    st.session_state.page = "Home"
 
-rating_cols = [c for c in df.columns if "score" in c.lower() or "rating" in c.lower()]
-title_col = next((c for c in df.columns if "title" in c.lower()), df.columns[0])
-genre_col = next((c for c in df.columns if "genre" in c.lower()), None)
-year_col = next((c for c in df.columns if "year" in c.lower()), None)
+# ---------------------------
+# Sidebar
+# ---------------------------
+st.sidebar.title("🎬 Mini Netflix")
 
-rating_col = rating_cols[0] if rating_cols else numeric_cols[0]
+if st.sidebar.button("🏠 Home"):
+    st.session_state.page = "Home"
 
-# -----------------------------
-# KPI SECTION
-# -----------------------------
-col1, col2, col3 = st.columns(3)
+if st.sidebar.button("❤️ My Watchlist"):
+    st.session_state.page = "Watchlist"
 
-col1.metric("🎬 Total Movies", len(df))
-col2.metric("⭐ Average Rating", round(df[rating_col].mean(), 2))
-col3.metric("🏆 Highest Rating", df[rating_col].max())
+if st.sidebar.button("🗑 Clear Watchlist"):
+    st.session_state.watchlist = []
 
-st.divider()
+uploaded_file = st.sidebar.file_uploader("Upload rotten_tomatoes_movies.csv", type=["csv"])
 
-# -----------------------------
-# TOP 10 MOVIES
-# -----------------------------
-st.subheader("🔥 Top 10 Highest Rated Movies")
+search = st.sidebar.text_input("🔎 Search")
 
-top10 = df.sort_values(by=rating_col, ascending=False).head(10)
+# ---------------------------
+# Functions
+# ---------------------------
+def toggle_watchlist(movie_id):
+    if movie_id in st.session_state.watchlist:
+        st.session_state.watchlist.remove(movie_id)
+    else:
+        st.session_state.watchlist.append(movie_id)
 
-fig_top10 = px.bar(
-    top10,
-    x=rating_col,
-    y=title_col,
-    orientation='h',
-    color=rating_col,
-    color_continuous_scale="Reds"
-)
+def show_movies(df):
+    cols = st.columns(5)
 
-fig_top10.update_layout(
-    template="plotly_dark",
-    yaxis=dict(autorange="reversed"),
-    height=500
-)
+    for i, row in df.iterrows():
+        with cols[i % 5]:
 
-st.plotly_chart(fig_top10, use_container_width=True)
+            if "poster" in df.columns and pd.notna(row.get("poster")):
+                st.image(row["poster"])
+            else:
+                st.image("https://via.placeholder.com/300x450?text=No+Image")
 
-# -----------------------------
-# RATING DISTRIBUTION
-# -----------------------------
-st.subheader("📊 Rating Distribution")
+            st.markdown(f"**{row['title']} ({row.get('year','')})**")
+            st.markdown(f"⭐ Rating: {row.get('rating','N/A')}")
 
-fig_hist = px.histogram(
-    df,
-    x=rating_col,
-    nbins=20,
-    color_discrete_sequence=["#E50914"]
-)
+            movie_id = row['title'] + str(row.get('year',""))
 
-fig_hist.update_layout(template="plotly_dark")
-st.plotly_chart(fig_hist, use_container_width=True)
+            if movie_id in st.session_state.watchlist:
+                if st.button("Remove ❤️", key=f"r_{movie_id}_{i}"):
+                    toggle_watchlist(movie_id)
+            else:
+                if st.button("Add ❤️", key=f"a_{movie_id}_{i}"):
+                    toggle_watchlist(movie_id)
 
-# -----------------------------
-# GENRE ANALYSIS
-# -----------------------------
-if genre_col:
-    st.subheader("🎭 Top Genres")
+# ---------------------------
+# UI
+# ---------------------------
+st.title("🔥 Mini Netflix - Rotten Tomatoes")
 
-    genre_data = (
-        df[genre_col]
-        .dropna()
-        .str.split(",")
-        .explode()
-        .str.strip()
-        .value_counts()
-        .head(10)
-        .reset_index()
-    )
+if uploaded_file is not None:
 
-    genre_data.columns = ["Genre", "Count"]
+    df = load_data(uploaded_file)
 
-    fig_genre = px.bar(
-        genre_data,
-        x="Genre",
-        y="Count",
-        color="Count",
-        color_continuous_scale="Reds"
-    )
+    # แปลง rating เป็นตัวเลข
+    if "rating" in df.columns:
+        df["rating"] = pd.to_numeric(df["rating"], errors="coerce")
 
-    fig_genre.update_layout(template="plotly_dark")
-    st.plotly_chart(fig_genre, use_container_width=True)
+    # ---------------------------
+    # 🎭 Genre Filter
+    # ---------------------------
+    if "genre" in df.columns:
+        all_genres = (
+            df["genre"]
+            .dropna()
+            .str.split(",")
+            .explode()
+            .str.strip()
+            .unique()
+        )
+        selected_genre = st.sidebar.selectbox("🎭 Filter by Genre", ["All"] + sorted(all_genres))
+    else:
+        selected_genre = "All"
 
-# -----------------------------
-# YEAR TREND
-# -----------------------------
-if year_col:
-    st.subheader("📅 Movies Released Per Year")
+    if st.session_state.page == "Home":
 
-    year_data = df[year_col].value_counts().sort_index().reset_index()
-    year_data.columns = ["Year", "Count"]
+        filtered = df
 
-    fig_year = px.line(
-        year_data,
-        x="Year",
-        y="Count",
-        markers=True
-    )
+        # 🔎 Search
+        if search:
+            filtered = filtered[filtered["title"].str.contains(search, case=False, na=False)]
 
-    fig_year.update_layout(template="plotly_dark")
-    st.plotly_chart(fig_year, use_container_width=True)
+        # 🎭 Filter Genre
+        if selected_genre != "All":
+            filtered = filtered[filtered["genre"].str.contains(selected_genre, na=False)]
+
+        # ⭐ Sort by Rating (มาก → น้อย)
+        if "rating" in filtered.columns:
+            filtered = filtered.sort_values(by="rating", ascending=False)
+
+        show_movies(filtered.head(50))
+
+    elif st.session_state.page == "Watchlist":
+
+        st.header("❤️ My Watchlist")
+
+        if not st.session_state.watchlist:
+            st.info("ยังไม่มีหนังใน Watchlist")
+        else:
+            watch_df = df[
+                (df["title"] + df.get("year","").astype(str))
+                .isin(st.session_state.watchlist)
+            ]
+
+            if "rating" in watch_df.columns:
+                watch_df = watch_df.sort_values(by="rating", ascending=False)
+
+            show_movies(watch_df)
+
+else:
+    st.info("📂 กรุณาอัปโหลดไฟล์ rotten_tomatoes_movies.csv ก่อน")
