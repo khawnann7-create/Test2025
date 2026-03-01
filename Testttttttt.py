@@ -1,13 +1,14 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # -----------------------
 # Page Config
 # -----------------------
-st.set_page_config(page_title="Netflix Movie Ranking", layout="wide")
+st.set_page_config(page_title="Movie Popularity Analysis", layout="wide")
 
 # -----------------------
-# Netflix Theme CSS
+# Netflix Theme
 # -----------------------
 st.markdown("""
     <style>
@@ -15,89 +16,89 @@ st.markdown("""
         background-color: #141414;
         color: white;
     }
-    .movie-card {
+    .metric-box {
         background-color: #1f1f1f;
-        padding: 10px;
+        padding: 15px;
         border-radius: 10px;
-        transition: 0.3s;
         text-align: center;
-    }
-    .movie-card:hover {
-        transform: scale(1.05);
-    }
-    .title {
-        font-size:16px;
-        font-weight:bold;
-        color:white;
-        margin-top:5px;
-    }
-    .rating {
-        color:#E50914;
-        font-size:14px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🎬 NETFLIX STYLE MOVIE RANKING")
-st.markdown("### 🔥 Top 10 Movies by Highest Rating")
+st.title("🎬 Movie Popularity Analysis Dashboard")
 
 # -----------------------
 # Load Data
 # -----------------------
 @st.cache_data
 def load_data():
-    df = pd.read_csv("rotten_tomatoes_movies (1).csv")
-    return df
+    return pd.read_csv("rotten_tomatoes_movies (1).csv")
 
 df = load_data()
 
 # -----------------------
-# หา column คะแนน
+# ตรวจหาคอลัมน์สำคัญ
 # -----------------------
-rating_columns = [col for col in df.columns if "score" in col.lower() or "rating" in col.lower()]
-if rating_columns:
-    rating_col = rating_columns[0]
-else:
-    rating_col = df.select_dtypes(include="number").columns[0]
+numeric_cols = df.select_dtypes(include="number").columns.tolist()
+rating_cols = [c for c in df.columns if "score" in c.lower() or "rating" in c.lower()]
+title_col = next((c for c in df.columns if "title" in c.lower()), df.columns[0])
+genre_col = next((c for c in df.columns if "genre" in c.lower()), None)
 
-# หา column ชื่อหนัง
-title_col = None
-for col in df.columns:
-    if "title" in col.lower():
-        title_col = col
-        break
-if title_col is None:
-    title_col = df.columns[0]
-
-# หา column poster
-poster_col = None
-for col in df.columns:
-    if "poster" in col.lower() or "image" in col.lower():
-        poster_col = col
-        break
+rating_col = rating_cols[0] if rating_cols else numeric_cols[0]
 
 # -----------------------
-# Top 10
+# KPI Section
 # -----------------------
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("🎬 Total Movies", len(df))
+
+with col2:
+    st.metric("⭐ Average Rating", round(df[rating_col].mean(), 2))
+
+with col3:
+    st.metric("🏆 Highest Rating", df[rating_col].max())
+
+st.divider()
+
+# -----------------------
+# Top 10 Popular Movies
+# -----------------------
+st.subheader("🔥 Top 10 Highest Rated Movies")
+
 top10 = df.sort_values(by=rating_col, ascending=False).head(10)
 
+st.dataframe(top10[[title_col, rating_col]])
+
 # -----------------------
-# Display Grid
+# Histogram Rating Distribution
 # -----------------------
-cols = st.columns(5)
+st.subheader("📊 Rating Distribution")
 
-for i, (_, row) in enumerate(top10.iterrows()):
-    with cols[i % 5]:
+fig, ax = plt.subplots()
+ax.hist(df[rating_col].dropna(), bins=20)
+ax.set_xlabel("Rating")
+ax.set_ylabel("Frequency")
+st.pyplot(fig)
 
-        # แสดงโปสเตอร์ถ้ามี
-        if poster_col and pd.notna(row[poster_col]):
-            st.image(row[poster_col], use_container_width=True)
-        else:
-            st.image("https://via.placeholder.com/300x450?text=No+Image", use_container_width=True)
+# -----------------------
+# Genre Analysis
+# -----------------------
+if genre_col:
+    st.subheader("🎭 Genre Analysis")
 
-        st.markdown(f"""
-            <div class="movie-card">
-                <div class="title">{row[title_col]}</div>
-                <div class="rating">⭐ {row[rating_col]}</div>
-            </div>
-        """, unsafe_allow_html=True)
+    genre_count = (
+        df[genre_col]
+        .dropna()
+        .str.split(",")
+        .explode()
+        .str.strip()
+        .value_counts()
+        .head(10)
+    )
+
+    fig2, ax2 = plt.subplots()
+    genre_count.plot(kind="bar", ax=ax2)
+    ax2.set_ylabel("Number of Movies")
+    st.pyplot(fig2)
